@@ -23,23 +23,30 @@ const fs = require("fs");
     const resp = await fetch("https://nextjs-demo-ebon-iota.vercel.app/", requestOptions)
     // redirect
     if ([301, 302, 303, 304, 306, 307, 308].includes(resp.status)) {
-        let myHeadersWithCookie = new Headers()
-        let vercelCookie = resp.headers.get('set-cookie') // get cookie from PUT
-        myHeadersWithCookie.append("Cookie", vercelCookie);
-        const requestOptionsWithNewCookie = {
-            method: 'GET',
-            headers: myHeadersWithCookie,
-            //  credentials: "include",
-        };
-        const resWithCookie = await fetch(resp.url, requestOptionsWithNewCookie)
-        resWithCookie.text().then((body) => {
-            fs.writeFileSync(`fetch_not_work_${resWithCookie.status}.html`, body);
+
+        resp.text().then(async (body) => {
+
+            fs.writeFileSync(`fetch_work_redirect_${resp.status}.html`, body);
+            let myHeadersWithCookie = new Headers()
+            let vercelCookie = resp.headers.get('set-cookie') // get cookie from PUT
+            myHeadersWithCookie.append("Cookie", vercelCookie);
+            const requestOptionsWithNewCookie = {
+                method: 'GET',
+                headers: myHeadersWithCookie,
+                //  credentials: "include",
+            };
+            const resWithCookie = await fetch(resp.url, requestOptionsWithNewCookie)
+            resWithCookie.text().then((body) => {
+                fs.writeFileSync(`fetch_work_${resWithCookie.status}.html`, body);
+            })
+
         })
+
     }
     // no redirect 
     else {
         resp.text().then((body) => {
-            fs.writeFileSync(`fetch_not_work_${resp.status}.html`, body);
+            fs.writeFileSync(`fetch_work_${resp.status}.html`, body);
           
         }
         )
